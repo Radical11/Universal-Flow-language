@@ -42,7 +42,50 @@ Compile source to a backend target.
 go run ./cmd/ufl compile examples/network.ufl --target json
 ```
 
-The only current target is `json`.
+Current targets:
+
+- `json`
+- `mermaid`
+- `dot`
+
+Write output to a file:
+
+```sh
+go run ./cmd/ufl compile examples/workflow.ufl --target mermaid --out workflow.mmd
+```
+
+## Inspect
+
+Print a quick semantic summary.
+
+```sh
+go run ./cmd/ufl inspect examples/story.ufl
+```
+
+Example output:
+
+```text
+title: Story Journey
+nodes: 3
+edges: 2
+flows: 1
+states: 0
+diagnostics: 0
+```
+
+## Format
+
+Print canonical UFL formatting:
+
+```sh
+go run ./cmd/ufl fmt examples/workflow.ufl
+```
+
+Rewrite a file in place:
+
+```sh
+go run ./cmd/ufl fmt examples/workflow.ufl --write
+```
 
 ## Common Development Commands
 
@@ -57,4 +100,3 @@ Format code:
 ```sh
 gofmt -w cmd internal
 ```
-

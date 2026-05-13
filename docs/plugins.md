@@ -59,4 +59,3 @@ Potential targets:
 ## Stability Goal
 
 The core IR should evolve carefully. Extensions should prefer metadata and transforms before requesting new syntax.
-

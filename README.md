@@ -67,8 +67,10 @@ These are all represented through the same low-level semantic core.
 ## Documentation
 
 - [Language Manual](docs/language.md)
+- [Grammar](docs/grammar.md)
 - [IR Reference](docs/ir.md)
 - [Compiler Architecture](docs/compiler.md)
+- [Semantic Profiles](docs/profiles.md)
 - [Plugin Model](docs/plugins.md)
 - [CLI Reference](docs/cli.md)
 
@@ -81,9 +83,9 @@ This repository contains the first MVP:
 - AST model
 - Semantic IR builder
 - JSON backend
+- Mermaid and DOT graph backends
 - CLI commands
 - Examples
 - Unit tests
 
 Future milestones can add Tree-sitter editor support, graph visualizers, DOT/Mermaid backends, Unity and Unreal export targets, plugin loading, richer diagnostics, and domain-specific packages.
-

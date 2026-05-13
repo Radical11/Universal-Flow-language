@@ -1,0 +1,59 @@
+{
+  "version": "ufl.ir.v0",
+  "title": "Approval Workflow",
+  "nodes": [
+    {
+      "id": "request",
+      "type": "artifact",
+      "label": "Request"
+    },
+    {
+      "id": "reviewer",
+      "type": "actor",
+      "label": "Reviewer"
+    },
+    {
+      "id": "decision",
+      "type": "artifact",
+      "label": "Decision"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:1",
+      "from": "request",
+      "to": "reviewer",
+      "type": "assigned_to"
+    },
+    {
+      "id": "edge:2",
+      "from": "reviewer",
+      "to": "decision",
+      "type": "produces"
+    }
+  ],
+  "flows": [
+    {
+      "id": "approval",
+      "label": "Approval path",
+      "steps": [
+        {
+          "id": "submit",
+          "target": "request",
+          "label": "Submit request"
+        },
+        {
+          "id": "review",
+          "target": "reviewer",
+          "label": "Review request"
+        },
+        {
+          "id": "decide",
+          "target": "decision",
+          "label": "Record decision"
+        }
+      ]
+    }
+  ]
+}
+
