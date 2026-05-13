@@ -61,6 +61,8 @@ Current targets:
 - `mermaid`
 - `dot`
 - `timeline`
+- `runtime`
+- `analysis`
 
 Write output to a file:
 
@@ -72,6 +74,18 @@ Export flow order as timeline JSON:
 
 ```sh
 go run ./cmd/ufl compile examples/workflow.ufl --target timeline --profile workflow
+```
+
+Export state-machine runtime data:
+
+```sh
+go run ./cmd/ufl compile examples/state-machine.ufl --target runtime --profile state-machine
+```
+
+Export adjacency and dependency views:
+
+```sh
+go run ./cmd/ufl compile examples/network.ufl --target analysis --profile system-map
 ```
 
 ## Inspect

@@ -10,6 +10,7 @@ Use profiles from the CLI with:
 go run ./cmd/ufl validate input.ufl --profile workflow
 go run ./cmd/ufl inspect input.ufl --profile story
 go run ./cmd/ufl compile input.ufl --target mermaid --profile system-map
+go run ./cmd/ufl compile input.ufl --target runtime --profile state-machine
 ```
 
 ## Why Profiles Exist

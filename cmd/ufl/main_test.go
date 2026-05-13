@@ -47,6 +47,26 @@ func TestCompileTimelineWithProfile(t *testing.T) {
 	}
 }
 
+func TestCompileRuntimeTarget(t *testing.T) {
+	dir := t.TempDir()
+	input := filepath.Join(dir, "machine.ufl")
+	output := filepath.Join(dir, "runtime.json")
+	source := "# Machine\nstate idle [initial=true]\n{\n  on start -> done\n}\nstate done [terminal=true]\n{\n}\n"
+	if err := os.WriteFile(input, []byte(source), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := run([]string{"compile", input, "--target", "runtime", "--profile", "state-machine", "--out", output}); err != nil {
+		t.Fatal(err)
+	}
+	content, err := os.ReadFile(output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(content), `"initialStates"`) || !strings.Contains(string(content), `"terminalStates"`) {
+		t.Fatalf("expected runtime output:\n%s", content)
+	}
+}
+
 func TestFmtWrite(t *testing.T) {
 	dir := t.TempDir()
 	input := filepath.Join(dir, "input.ufl")

@@ -34,6 +34,12 @@ Compile a flow into timeline JSON:
 go run ./cmd/ufl compile journey.ufl --target timeline --profile story
 ```
 
+Compile a state machine into runtime JSON:
+
+```sh
+go run ./cmd/ufl compile examples/state-machine.ufl --target runtime --profile state-machine
+```
+
 Validate an input:
 
 ```sh
@@ -99,6 +105,8 @@ This repository contains the first MVP:
 - JSON backend
 - Mermaid and DOT graph backends
 - Timeline backend for ordered flow exports
+- Runtime backend for state-machine and flow execution exports
+- Analysis backend for adjacency and dependency views
 - Profile-aware validation for workflow, story, state-machine, and system-map
 - Profile-aware compile output for timeline and Mermaid
 - CLI commands

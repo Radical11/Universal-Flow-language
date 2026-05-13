@@ -8,9 +8,11 @@ import (
 	"io"
 	"os"
 
+	analysisbackend "github.com/Radical11/Universal-Flow-language/internal/backend/analysis"
 	dotbackend "github.com/Radical11/Universal-Flow-language/internal/backend/dot"
 	jsonbackend "github.com/Radical11/Universal-Flow-language/internal/backend/json"
 	mmdbackend "github.com/Radical11/Universal-Flow-language/internal/backend/mmd"
+	runtimebackend "github.com/Radical11/Universal-Flow-language/internal/backend/runtime"
 	timelinebackend "github.com/Radical11/Universal-Flow-language/internal/backend/timeline"
 	"github.com/Radical11/Universal-Flow-language/internal/compiler"
 )
@@ -128,6 +130,10 @@ func compileCmd(args []string) error {
 		err = dotbackend.Encode(&output, doc)
 	case "timeline":
 		err = timelinebackend.Encode(&output, doc)
+	case "runtime":
+		err = runtimebackend.Encode(&output, doc)
+	case "analysis":
+		err = analysisbackend.Encode(&output, doc)
 	default:
 		return fmt.Errorf("unsupported target %q", target)
 	}

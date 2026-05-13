@@ -49,6 +49,6 @@ The IR normalizes source concepts into a backend-friendly model:
 
 ## Backends
 
-Backends transform the IR into target formats. Current backends emit JSON, Mermaid, DOT, and timeline JSON.
+Backends transform the IR into target formats. Current backends emit JSON, Mermaid, DOT, timeline JSON, runtime JSON, and analysis JSON.
 
 Future backends can emit graph formats, diagrams, runtime data, engine integrations, or simulation inputs without changing the core parser.
