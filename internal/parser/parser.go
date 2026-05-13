@@ -78,7 +78,7 @@ func (p *Parser) parseEntity() (ast.Entity, error) {
 	if err != nil {
 		return ast.Entity{}, err
 	}
-	entity := ast.Entity{ID: id.Value, Type: "entity", Metadata: ast.Metadata{}}
+	entity := ast.Entity{ID: id.Value, Type: "entity", Metadata: ast.Metadata{}, Pos: ast.SourcePos{Line: id.Line, Column: id.Column}}
 	for !p.atLineEnd() {
 		if p.matchKeyword("as") {
 			typ, err := p.consumeIdent("expected entity type after as")
@@ -123,6 +123,7 @@ func (p *Parser) parseRelation() (ast.Relation, error) {
 		return ast.Relation{}, err
 	}
 	rel := ast.Relation{From: from.Value, To: to.Value, Type: "relates", Metadata: ast.Metadata{}}
+	rel.Pos = ast.SourcePos{Line: from.Line, Column: from.Column}
 	if p.matchKeyword("as") {
 		typ, err := p.consumeIdent("expected relation type after as")
 		if err != nil {
@@ -149,7 +150,7 @@ func (p *Parser) parseFlow() (ast.Flow, error) {
 	if err != nil {
 		return ast.Flow{}, err
 	}
-	flow := ast.Flow{ID: id.Value, Metadata: ast.Metadata{}}
+	flow := ast.Flow{ID: id.Value, Metadata: ast.Metadata{}, Pos: ast.SourcePos{Line: id.Line, Column: id.Column}}
 	for !p.atLineEnd() {
 		if p.matchKeyword("label") {
 			label, err := p.consumeTextValue("expected flow label")
@@ -200,7 +201,7 @@ func (p *Parser) parseStep() (ast.Step, error) {
 	if err != nil {
 		return ast.Step{}, err
 	}
-	step := ast.Step{ID: id.Value, Metadata: ast.Metadata{}}
+	step := ast.Step{ID: id.Value, Metadata: ast.Metadata{}, Pos: ast.SourcePos{Line: id.Line, Column: id.Column}}
 	for !p.atLineEnd() {
 		if p.matchKeyword("uses") {
 			target, err := p.consumeIdent("expected step target after uses")
@@ -237,7 +238,7 @@ func (p *Parser) parseState() (ast.State, error) {
 	if err != nil {
 		return ast.State{}, err
 	}
-	state := ast.State{ID: id.Value, Metadata: ast.Metadata{}}
+	state := ast.State{ID: id.Value, Metadata: ast.Metadata{}, Pos: ast.SourcePos{Line: id.Line, Column: id.Column}}
 	for !p.atLineEnd() {
 		if p.matchKeyword("label") {
 			label, err := p.consumeTextValue("expected state label")
@@ -295,7 +296,7 @@ func (p *Parser) parseTransition() (ast.Transition, error) {
 	if err != nil {
 		return ast.Transition{}, err
 	}
-	transition := ast.Transition{On: event, To: to.Value, Metadata: ast.Metadata{}}
+	transition := ast.Transition{On: event, To: to.Value, Metadata: ast.Metadata{}, Pos: ast.SourcePos{Line: to.Line, Column: to.Column}}
 	for !p.atLineEnd() {
 		if p.matchKeyword("if") {
 			condition, err := p.consumeTextValue("expected transition condition")

@@ -95,6 +95,15 @@ States represent state-machine structure.
 
 Diagnostics report semantic issues that do not necessarily prevent IR generation.
 
+```json
+{
+  "severity": "warning",
+  "message": "relation target \"reviewer\" is not declared",
+  "line": 4,
+  "column": 5
+}
+```
+
 Examples:
 
 - Relationship target not declared

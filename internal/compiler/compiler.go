@@ -47,10 +47,10 @@ func BuildIR(doc *ast.Document) (*ir.Document, error) {
 	}
 	for i, rel := range doc.Relations {
 		if !seen[rel.From] {
-			result.Diagnostics = append(result.Diagnostics, ir.Diagnostic{Severity: "warning", Message: fmt.Sprintf("relation source %q is not declared", rel.From)})
+			result.Diagnostics = append(result.Diagnostics, ir.Diagnostic{Severity: "warning", Message: fmt.Sprintf("relation source %q is not declared", rel.From), Line: rel.Pos.Line, Column: rel.Pos.Column})
 		}
 		if !seen[rel.To] {
-			result.Diagnostics = append(result.Diagnostics, ir.Diagnostic{Severity: "warning", Message: fmt.Sprintf("relation target %q is not declared", rel.To)})
+			result.Diagnostics = append(result.Diagnostics, ir.Diagnostic{Severity: "warning", Message: fmt.Sprintf("relation target %q is not declared", rel.To), Line: rel.Pos.Line, Column: rel.Pos.Column})
 		}
 		result.Edges = append(result.Edges, ir.Edge{
 			ID:       fmt.Sprintf("edge:%d", i+1),
@@ -64,7 +64,7 @@ func BuildIR(doc *ast.Document) (*ir.Document, error) {
 		steps := make([]ir.Step, 0, len(flow.Steps))
 		for _, step := range flow.Steps {
 			if step.Target != "" && !seen[step.Target] {
-				result.Diagnostics = append(result.Diagnostics, ir.Diagnostic{Severity: "warning", Message: fmt.Sprintf("flow %q step %q uses undeclared target %q", flow.ID, step.ID, step.Target)})
+				result.Diagnostics = append(result.Diagnostics, ir.Diagnostic{Severity: "warning", Message: fmt.Sprintf("flow %q step %q uses undeclared target %q", flow.ID, step.ID, step.Target), Line: step.Pos.Line, Column: step.Pos.Column})
 			}
 			steps = append(steps, ir.Step{ID: step.ID, Target: step.Target, Label: step.Label, Metadata: copyMap(step.Metadata)})
 		}
@@ -78,7 +78,7 @@ func BuildIR(doc *ast.Document) (*ir.Document, error) {
 		transitions := make([]ir.Transition, 0, len(state.Transitions))
 		for _, transition := range state.Transitions {
 			if !stateIDs[transition.To] {
-				result.Diagnostics = append(result.Diagnostics, ir.Diagnostic{Severity: "warning", Message: fmt.Sprintf("state %q transitions to undeclared state %q", state.ID, transition.To)})
+				result.Diagnostics = append(result.Diagnostics, ir.Diagnostic{Severity: "warning", Message: fmt.Sprintf("state %q transitions to undeclared state %q", state.ID, transition.To), Line: transition.Pos.Line, Column: transition.Pos.Column})
 			}
 			transitions = append(transitions, ir.Transition{To: transition.To, On: transition.On, Condition: transition.Condition, Metadata: copyMap(transition.Metadata)})
 		}

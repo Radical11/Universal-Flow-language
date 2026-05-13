@@ -30,6 +30,9 @@ func TestCompileWarnsForUndeclaredRelationTarget(t *testing.T) {
 	if len(doc.Diagnostics) != 1 {
 		t.Fatalf("expected one diagnostic, got %#v", doc.Diagnostics)
 	}
+	if doc.Diagnostics[0].Line == 0 || doc.Diagnostics[0].Column == 0 {
+		t.Fatalf("expected source location on diagnostic, got %#v", doc.Diagnostics[0])
+	}
 }
 
 func TestCompilePreservesTypedMetadataInIR(t *testing.T) {

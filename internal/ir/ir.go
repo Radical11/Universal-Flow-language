@@ -58,4 +58,6 @@ type Transition struct {
 type Diagnostic struct {
 	Severity string `json:"severity"`
 	Message  string `json:"message"`
+	Line     int    `json:"line,omitempty"`
+	Column   int    `json:"column,omitempty"`
 }

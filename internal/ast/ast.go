@@ -20,6 +20,11 @@ type Section struct {
 	Title string
 }
 
+type SourcePos struct {
+	Line   int
+	Column int
+}
+
 type ValueKind string
 
 const (
@@ -112,6 +117,7 @@ type Entity struct {
 	Type     string
 	Label    string
 	Metadata Metadata
+	Pos      SourcePos
 }
 
 type Relation struct {
@@ -119,6 +125,7 @@ type Relation struct {
 	To       string
 	Type     string
 	Metadata Metadata
+	Pos      SourcePos
 }
 
 type Flow struct {
@@ -126,6 +133,7 @@ type Flow struct {
 	Label    string
 	Steps    []Step
 	Metadata Metadata
+	Pos      SourcePos
 }
 
 type Step struct {
@@ -133,6 +141,7 @@ type Step struct {
 	Target   string
 	Label    string
 	Metadata Metadata
+	Pos      SourcePos
 }
 
 type State struct {
@@ -140,6 +149,7 @@ type State struct {
 	Label       string
 	Transitions []Transition
 	Metadata    Metadata
+	Pos         SourcePos
 }
 
 type Transition struct {
@@ -147,4 +157,5 @@ type Transition struct {
 	On        string
 	Condition string
 	Metadata  Metadata
+	Pos       SourcePos
 }

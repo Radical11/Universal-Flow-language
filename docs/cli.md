@@ -33,6 +33,7 @@ valid
 ```
 
 Warnings are printed to stderr.
+When source coordinates are available, the CLI prints them as `severity:line:column: message`.
 
 ## Compile
 

@@ -82,6 +82,10 @@ func validateCmd(args []string) error {
 	}
 	if len(doc.Diagnostics) > 0 {
 		for _, diagnostic := range doc.Diagnostics {
+			if diagnostic.Line > 0 {
+				fmt.Fprintf(os.Stderr, "%s:%d:%d: %s\n", diagnostic.Severity, diagnostic.Line, diagnostic.Column, diagnostic.Message)
+				continue
+			}
 			fmt.Fprintf(os.Stderr, "%s: %s\n", diagnostic.Severity, diagnostic.Message)
 		}
 	}
