@@ -26,6 +26,12 @@ Validate source and report diagnostics.
 go run ./cmd/ufl validate examples/workflow.ufl
 ```
 
+Validate against a semantic profile:
+
+```sh
+go run ./cmd/ufl validate examples/workflow.ufl --profile workflow
+```
+
 Successful output:
 
 ```text
@@ -61,6 +67,12 @@ Print a quick semantic summary.
 
 ```sh
 go run ./cmd/ufl inspect examples/story.ufl
+```
+
+Inspect with a profile:
+
+```sh
+go run ./cmd/ufl inspect examples/state-machine.ufl --profile state-machine
 ```
 
 Example output:

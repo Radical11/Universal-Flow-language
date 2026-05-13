@@ -4,6 +4,13 @@ Semantic profiles are conventions layered on top of core UFL. They are not new s
 
 A profile can define recommended entity types, relationship types, metadata keys, validation rules, and visualization preferences for a domain.
 
+Use profiles from the CLI with:
+
+```sh
+go run ./cmd/ufl validate input.ufl --profile workflow
+go run ./cmd/ufl inspect input.ufl --profile story
+```
+
 ## Why Profiles Exist
 
 The language core should stay small. Profiles let communities build richer meanings without asking the parser to understand every domain.
@@ -32,6 +39,12 @@ Suggested metadata keys:
 - `priority`
 - `status`
 
+Current validator behavior:
+
+- Warn when no `flow` blocks exist
+- Warn on unrecognized entity types
+- Warn on unrecognized relationship types
+
 ## Story Profile
 
 Suggested entity types:
@@ -57,6 +70,12 @@ Suggested metadata keys:
 - `stakes`
 - `time`
 
+Current validator behavior:
+
+- Warn when no relations or flows exist
+- Warn on unrecognized entity types
+- Warn on unrecognized relationship types
+
 ## State Machine Profile
 
 Suggested entity types are usually unnecessary because `state` blocks carry the model.
@@ -67,6 +86,13 @@ Suggested metadata keys:
 - `terminal`
 - `priority`
 - `timeout`
+
+Current validator behavior:
+
+- Warn when no `state` blocks exist
+- Warn when no state has `[initial=true]`
+- Warn when more than one state has `[initial=true]`
+- Warn when a state has no outgoing transitions
 
 ## System Map Profile
 
@@ -81,12 +107,19 @@ Suggested entity types:
 
 Suggested relationship types:
 
+- `interacts_with`
 - `calls`
 - `reads_from`
 - `writes_to`
 - `publishes`
 - `subscribes`
 - `returns_to`
+
+Current validator behavior:
+
+- Warn when entities or relations are missing
+- Warn on unrecognized entity types
+- Warn on unrecognized relationship types
 
 ## Profile Compatibility
 
@@ -97,4 +130,3 @@ Profiles should prefer:
 - Backend conventions over IR changes
 
 When a profile needs something the IR cannot represent, that is a signal to discuss the IR carefully rather than expanding syntax immediately.
-

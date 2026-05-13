@@ -1,5 +1,5 @@
 # Interaction State Machine
-state idle label "Idle"
+state idle label "Idle" [initial=true]
 {
   on start -> active
 }
@@ -15,7 +15,6 @@ state paused label "Paused"
   on resume -> active
 }
 
-state complete label "Complete"
+state complete label "Complete" [terminal=true]
 {
 }
-

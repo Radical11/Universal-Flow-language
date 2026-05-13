@@ -73,3 +73,59 @@ func TestValidateReportsDiagnosticLocation(t *testing.T) {
 		t.Fatalf("expected warning output with location, got %q", got)
 	}
 }
+
+func TestValidateWithProfileReportsProfileWarning(t *testing.T) {
+	dir := t.TempDir()
+	input := filepath.Join(dir, "input.ufl")
+	if err := os.WriteFile(input, []byte("entity request as artifact\nentity reviewer as actor\nrel request -> reviewer as assigned_to\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	stderr := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stderr = w
+	defer func() { os.Stderr = stderr }()
+	if err := run([]string{"validate", input, "--profile", "workflow"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := w.Close(); err != nil {
+		t.Fatal(err)
+	}
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(buf.String(), `workflow profile expects at least one "flow" block`) {
+		t.Fatalf("expected profile warning, got %q", buf.String())
+	}
+}
+
+func TestInspectShowsProfile(t *testing.T) {
+	dir := t.TempDir()
+	input := filepath.Join(dir, "input.ufl")
+	if err := os.WriteFile(input, []byte("state idle [initial=true]\n{\n  on start -> active\n}\nstate active\n{\n  on stop -> idle\n}\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	stdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stdout = w
+	defer func() { os.Stdout = stdout }()
+	if err := run([]string{"inspect", input, "--profile", "state-machine"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := w.Close(); err != nil {
+		t.Fatal(err)
+	}
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(buf.String(), "profile: state-machine") {
+		t.Fatalf("expected profile in inspect output, got %q", buf.String())
+	}
+}

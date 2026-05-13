@@ -1,11 +1,10 @@
 # Relationship Network
 entity user as actor label "User"
 entity interface as surface label "Interface"
-entity service as system label "Service"
+entity service as service label "Service"
 entity database as store label "Database"
 
 rel user -> interface as interacts_with
 rel interface -> service as calls
 rel service -> database as reads_from
 rel database -> service as returns_to
-

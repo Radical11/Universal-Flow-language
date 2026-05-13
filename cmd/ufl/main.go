@@ -65,18 +65,22 @@ func parseCmd(args []string) error {
 }
 
 func validateCmd(args []string) error {
+	profile, normalizedArgs, err := extractProfileOption(args)
+	if err != nil {
+		return err
+	}
 	fs := flag.NewFlagSet("validate", flag.ContinueOnError)
-	if err := fs.Parse(args); err != nil {
+	if err := fs.Parse(normalizedArgs); err != nil {
 		return err
 	}
 	if fs.NArg() != 1 {
-		return fmt.Errorf("usage: ufl validate input.ufl")
+		return fmt.Errorf("usage: ufl validate input.ufl [--profile workflow]")
 	}
 	source, err := os.ReadFile(fs.Arg(0))
 	if err != nil {
 		return err
 	}
-	doc, err := compiler.Compile(string(source))
+	doc, err := compiler.CompileWithProfile(string(source), profile)
 	if err != nil {
 		return err
 	}
@@ -163,18 +167,22 @@ func fmtCmd(args []string) error {
 }
 
 func inspectCmd(args []string) error {
+	profile, normalizedArgs, err := extractProfileOption(args)
+	if err != nil {
+		return err
+	}
 	fs := flag.NewFlagSet("inspect", flag.ContinueOnError)
-	if err := fs.Parse(args); err != nil {
+	if err := fs.Parse(normalizedArgs); err != nil {
 		return err
 	}
 	if fs.NArg() != 1 {
-		return fmt.Errorf("usage: ufl inspect input.ufl")
+		return fmt.Errorf("usage: ufl inspect input.ufl [--profile workflow]")
 	}
 	source, err := os.ReadFile(fs.Arg(0))
 	if err != nil {
 		return err
 	}
-	doc, err := compiler.Compile(string(source))
+	doc, err := compiler.CompileWithProfile(string(source), profile)
 	if err != nil {
 		return err
 	}
@@ -183,6 +191,9 @@ func inspectCmd(args []string) error {
 	fmt.Fprintf(os.Stdout, "edges: %d\n", len(doc.Edges))
 	fmt.Fprintf(os.Stdout, "flows: %d\n", len(doc.Flows))
 	fmt.Fprintf(os.Stdout, "states: %d\n", len(doc.States))
+	if profile != "" {
+		fmt.Fprintf(os.Stdout, "profile: %s\n", profile)
+	}
 	fmt.Fprintf(os.Stdout, "diagnostics: %d\n", len(doc.Diagnostics))
 	return nil
 }
@@ -190,6 +201,32 @@ func inspectCmd(args []string) error {
 func usage() error {
 	fmt.Fprintln(os.Stderr, "usage: ufl <parse|validate|compile|fmt|inspect> [options] input.ufl")
 	return nil
+}
+
+func extractProfileOption(args []string) (string, []string, error) {
+	profile := ""
+	normalized := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if arg == "--profile" {
+			if i+1 >= len(args) {
+				return "", nil, fmt.Errorf("--profile requires a value")
+			}
+			profile = args[i+1]
+			i++
+			continue
+		}
+		if len(arg) > len("--profile=") && arg[:len("--profile=")] == "--profile=" {
+			profile = arg[len("--profile="):]
+			continue
+		}
+		normalized = append(normalized, arg)
+	}
+	profile, err := compiler.NormalizeProfile(profile)
+	if err != nil {
+		return "", nil, err
+	}
+	return profile, normalized, nil
 }
 
 func extractCompileOptions(args []string) (string, string, []string, error) {

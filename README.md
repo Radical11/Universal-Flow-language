@@ -34,6 +34,12 @@ Validate an input:
 go run ./cmd/ufl validate journey.ufl
 ```
 
+Validate with a semantic profile:
+
+```sh
+go run ./cmd/ufl validate journey.ufl --profile story
+```
+
 Inspect the parsed AST:
 
 ```sh
@@ -44,6 +50,7 @@ go run ./cmd/ufl parse journey.ufl
 
 - **Small syntax**: UFL uses readable declarations, Markdown-style headings, blocks, and metadata.
 - **Typed metadata**: semantic attributes can carry strings, numbers, booleans, and arrays without changing the core language.
+- **Profile-aware validation**: semantic guidance lives in validators and documentation instead of core syntax.
 - **Semantic IR first**: the compiler output is a universal model of nodes, edges, flows, states, transitions, and metadata.
 - **Domain agnostic**: the language core describes structure and meaning, not one industry.
 - **Backend oriented**: the same IR can feed graph visualizers, simulation runtimes, diagrams, APIs, engines, or future plugins.
@@ -85,6 +92,7 @@ This repository contains the first MVP:
 - Semantic IR builder
 - JSON backend
 - Mermaid and DOT graph backends
+- Profile-aware validation for workflow, story, state-machine, and system-map
 - CLI commands
 - Examples
 - Unit tests

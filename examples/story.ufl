@@ -4,7 +4,7 @@ entity village as place label "Village"
 entity mountain as place label "Mountain"
 
 rel hero -> village as begins_at
-rel village -> mountain as path_to [difficulty=high]
+rel hero -> mountain as travels_to [difficulty=high]
 
 flow ascent label "Mountain ascent"
 {
@@ -12,4 +12,3 @@ flow ascent label "Mountain ascent"
   step leave uses village label "Leave home"
   step climb uses mountain label "Climb toward the summit"
 }
-
