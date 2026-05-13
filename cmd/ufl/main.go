@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
+	dotbackend "github.com/Radical11/Universal-Flow-language/internal/backend/dot"
 	jsonbackend "github.com/Radical11/Universal-Flow-language/internal/backend/json"
+	mmdbackend "github.com/Radical11/Universal-Flow-language/internal/backend/mmd"
 	"github.com/Radical11/Universal-Flow-language/internal/compiler"
 )
 
@@ -28,6 +32,10 @@ func run(args []string) error {
 		return validateCmd(args[1:])
 	case "compile":
 		return compileCmd(args[1:])
+	case "fmt":
+		return fmtCmd(args[1:])
+	case "inspect":
+		return inspectCmd(args[1:])
 	case "help", "-h", "--help":
 		return usage()
 	default:
@@ -82,7 +90,7 @@ func validateCmd(args []string) error {
 }
 
 func compileCmd(args []string) error {
-	target, normalizedArgs, err := extractTarget(args)
+	target, outPath, normalizedArgs, err := extractCompileOptions(args)
 	if err != nil {
 		return err
 	}
@@ -91,10 +99,7 @@ func compileCmd(args []string) error {
 		return err
 	}
 	if fs.NArg() != 1 {
-		return fmt.Errorf("usage: ufl compile input.ufl --target json")
-	}
-	if target != "json" {
-		return fmt.Errorf("unsupported target %q", target)
+		return fmt.Errorf("usage: ufl compile input.ufl --target json --out output.json")
 	}
 	source, err := os.ReadFile(fs.Arg(0))
 	if err != nil {
@@ -104,22 +109,94 @@ func compileCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-	return jsonbackend.Encode(os.Stdout, doc)
+	var output bytes.Buffer
+	switch target {
+	case "json":
+		err = jsonbackend.Encode(&output, doc)
+	case "mermaid":
+		err = mmdbackend.Encode(&output, doc)
+	case "dot":
+		err = dotbackend.Encode(&output, doc)
+	default:
+		return fmt.Errorf("unsupported target %q", target)
+	}
+	if err != nil {
+		return err
+	}
+	return writeOutput(outPath, output.Bytes())
 }
 
-func usage() error {
-	fmt.Fprintln(os.Stderr, "usage: ufl <parse|validate|compile> [options] input.ufl")
+func fmtCmd(args []string) error {
+	write, normalizedArgs, err := extractFmtOptions(args)
+	if err != nil {
+		return err
+	}
+	fs := flag.NewFlagSet("fmt", flag.ContinueOnError)
+	if err := fs.Parse(normalizedArgs); err != nil {
+		return err
+	}
+	if fs.NArg() != 1 {
+		return fmt.Errorf("usage: ufl fmt input.ufl [--write]")
+	}
+	sourcePath := fs.Arg(0)
+	source, err := os.ReadFile(sourcePath)
+	if err != nil {
+		return err
+	}
+	doc, err := compiler.Parse(string(source))
+	if err != nil {
+		return err
+	}
+	var output bytes.Buffer
+	if err := compiler.Format(&output, doc); err != nil {
+		return err
+	}
+	if write {
+		return os.WriteFile(sourcePath, output.Bytes(), 0644)
+	}
+	_, err = io.Copy(os.Stdout, &output)
+	return err
+}
+
+func inspectCmd(args []string) error {
+	fs := flag.NewFlagSet("inspect", flag.ContinueOnError)
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if fs.NArg() != 1 {
+		return fmt.Errorf("usage: ufl inspect input.ufl")
+	}
+	source, err := os.ReadFile(fs.Arg(0))
+	if err != nil {
+		return err
+	}
+	doc, err := compiler.Compile(string(source))
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stdout, "title: %s\n", doc.Title)
+	fmt.Fprintf(os.Stdout, "nodes: %d\n", len(doc.Nodes))
+	fmt.Fprintf(os.Stdout, "edges: %d\n", len(doc.Edges))
+	fmt.Fprintf(os.Stdout, "flows: %d\n", len(doc.Flows))
+	fmt.Fprintf(os.Stdout, "states: %d\n", len(doc.States))
+	fmt.Fprintf(os.Stdout, "diagnostics: %d\n", len(doc.Diagnostics))
 	return nil
 }
 
-func extractTarget(args []string) (string, []string, error) {
+func usage() error {
+	fmt.Fprintln(os.Stderr, "usage: ufl <parse|validate|compile|fmt|inspect> [options] input.ufl")
+	return nil
+}
+
+func extractCompileOptions(args []string) (string, string, []string, error) {
 	target := "json"
+	outPath := ""
 	normalized := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if arg == "--target" {
 			if i+1 >= len(args) {
-				return "", nil, fmt.Errorf("--target requires a value")
+				return "", "", nil, fmt.Errorf("--target requires a value")
 			}
 			target = args[i+1]
 			i++
@@ -129,7 +206,40 @@ func extractTarget(args []string) (string, []string, error) {
 			target = arg[len("--target="):]
 			continue
 		}
+		if arg == "--out" || arg == "-o" {
+			if i+1 >= len(args) {
+				return "", "", nil, fmt.Errorf("%s requires a value", arg)
+			}
+			outPath = args[i+1]
+			i++
+			continue
+		}
+		if len(arg) > len("--out=") && arg[:len("--out=")] == "--out=" {
+			outPath = arg[len("--out="):]
+			continue
+		}
 		normalized = append(normalized, arg)
 	}
-	return target, normalized, nil
+	return target, outPath, normalized, nil
+}
+
+func extractFmtOptions(args []string) (bool, []string, error) {
+	write := false
+	normalized := make([]string, 0, len(args))
+	for _, arg := range args {
+		if arg == "--write" || arg == "-w" {
+			write = true
+			continue
+		}
+		normalized = append(normalized, arg)
+	}
+	return write, normalized, nil
+}
+
+func writeOutput(path string, content []byte) error {
+	if path == "" {
+		_, err := os.Stdout.Write(content)
+		return err
+	}
+	return os.WriteFile(path, content, 0644)
 }
