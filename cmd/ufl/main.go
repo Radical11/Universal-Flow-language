@@ -82,16 +82,19 @@ func validateCmd(args []string) error {
 }
 
 func compileCmd(args []string) error {
+	target, normalizedArgs, err := extractTarget(args)
+	if err != nil {
+		return err
+	}
 	fs := flag.NewFlagSet("compile", flag.ContinueOnError)
-	target := fs.String("target", "json", "compile target")
-	if err := fs.Parse(args); err != nil {
+	if err := fs.Parse(normalizedArgs); err != nil {
 		return err
 	}
 	if fs.NArg() != 1 {
 		return fmt.Errorf("usage: ufl compile input.ufl --target json")
 	}
-	if *target != "json" {
-		return fmt.Errorf("unsupported target %q", *target)
+	if target != "json" {
+		return fmt.Errorf("unsupported target %q", target)
 	}
 	source, err := os.ReadFile(fs.Arg(0))
 	if err != nil {
@@ -107,4 +110,26 @@ func compileCmd(args []string) error {
 func usage() error {
 	fmt.Fprintln(os.Stderr, "usage: ufl <parse|validate|compile> [options] input.ufl")
 	return nil
+}
+
+func extractTarget(args []string) (string, []string, error) {
+	target := "json"
+	normalized := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if arg == "--target" {
+			if i+1 >= len(args) {
+				return "", nil, fmt.Errorf("--target requires a value")
+			}
+			target = args[i+1]
+			i++
+			continue
+		}
+		if len(arg) > len("--target=") && arg[:len("--target=")] == "--target=" {
+			target = arg[len("--target="):]
+			continue
+		}
+		normalized = append(normalized, arg)
+	}
+	return target, normalized, nil
 }
