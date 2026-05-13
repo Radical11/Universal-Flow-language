@@ -1,0 +1,21 @@
+# Interaction State Machine
+state idle label "Idle"
+{
+  on start -> active
+}
+
+state active label "Active"
+{
+  on pause -> paused
+  on finish -> complete if "all checks pass"
+}
+
+state paused label "Paused"
+{
+  on resume -> active
+}
+
+state complete label "Complete"
+{
+}
+

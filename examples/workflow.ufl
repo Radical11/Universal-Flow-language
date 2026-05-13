@@ -1,0 +1,15 @@
+# Approval Workflow
+entity request as artifact label "Request"
+entity reviewer as actor label "Reviewer"
+entity decision as artifact label "Decision"
+
+rel request -> reviewer as assigned_to
+rel reviewer -> decision as produces
+
+flow approval label "Approval path"
+{
+  step submit uses request label "Submit request"
+  step review uses reviewer label "Review request"
+  step decide uses decision label "Record decision"
+}
+
