@@ -49,16 +49,29 @@ Compile source to a backend target.
 go run ./cmd/ufl compile examples/network.ufl --target json
 ```
 
+Compile with a profile-aware backend:
+
+```sh
+go run ./cmd/ufl compile examples/workflow.ufl --target mermaid --profile workflow
+```
+
 Current targets:
 
 - `json`
 - `mermaid`
 - `dot`
+- `timeline`
 
 Write output to a file:
 
 ```sh
 go run ./cmd/ufl compile examples/workflow.ufl --target mermaid --out workflow.mmd
+```
+
+Export flow order as timeline JSON:
+
+```sh
+go run ./cmd/ufl compile examples/workflow.ufl --target timeline --profile workflow
 ```
 
 ## Inspect

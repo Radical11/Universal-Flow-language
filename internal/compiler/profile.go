@@ -48,6 +48,12 @@ func CompileWithProfile(source, profile string) (*ir.Document, error) {
 		return nil, err
 	}
 	if profile != "" {
+		if irDoc.Metadata == nil {
+			irDoc.Metadata = map[string]any{}
+		}
+		irDoc.Metadata["profile"] = profile
+	}
+	if profile != "" {
 		irDoc.Diagnostics = append(irDoc.Diagnostics, ValidateProfile(doc, profile)...)
 	}
 	return irDoc, nil

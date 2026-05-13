@@ -27,6 +27,26 @@ func TestCompileWritesOutputFile(t *testing.T) {
 	}
 }
 
+func TestCompileTimelineWithProfile(t *testing.T) {
+	dir := t.TempDir()
+	input := filepath.Join(dir, "input.ufl")
+	output := filepath.Join(dir, "output.json")
+	source := "# Workflow\nentity request as artifact\nflow approval\n{\n  step submit uses request label \"Submit request\"\n}\n"
+	if err := os.WriteFile(input, []byte(source), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := run([]string{"compile", input, "--target", "timeline", "--profile", "workflow", "--out", output}); err != nil {
+		t.Fatal(err)
+	}
+	content, err := os.ReadFile(output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(content), `"profile": "workflow"`) {
+		t.Fatalf("expected timeline profile in output:\n%s", content)
+	}
+}
+
 func TestFmtWrite(t *testing.T) {
 	dir := t.TempDir()
 	input := filepath.Join(dir, "input.ufl")

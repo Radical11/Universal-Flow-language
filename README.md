@@ -28,6 +28,12 @@ Compile it to JSON IR:
 go run ./cmd/ufl compile journey.ufl --target json
 ```
 
+Compile a flow into timeline JSON:
+
+```sh
+go run ./cmd/ufl compile journey.ufl --target timeline --profile story
+```
+
 Validate an input:
 
 ```sh
@@ -92,7 +98,9 @@ This repository contains the first MVP:
 - Semantic IR builder
 - JSON backend
 - Mermaid and DOT graph backends
+- Timeline backend for ordered flow exports
 - Profile-aware validation for workflow, story, state-machine, and system-map
+- Profile-aware compile output for timeline and Mermaid
 - CLI commands
 - Examples
 - Unit tests

@@ -11,6 +11,7 @@ import (
 	dotbackend "github.com/Radical11/Universal-Flow-language/internal/backend/dot"
 	jsonbackend "github.com/Radical11/Universal-Flow-language/internal/backend/json"
 	mmdbackend "github.com/Radical11/Universal-Flow-language/internal/backend/mmd"
+	timelinebackend "github.com/Radical11/Universal-Flow-language/internal/backend/timeline"
 	"github.com/Radical11/Universal-Flow-language/internal/compiler"
 )
 
@@ -98,7 +99,7 @@ func validateCmd(args []string) error {
 }
 
 func compileCmd(args []string) error {
-	target, outPath, normalizedArgs, err := extractCompileOptions(args)
+	target, outPath, profile, normalizedArgs, err := extractCompileOptions(args)
 	if err != nil {
 		return err
 	}
@@ -107,13 +108,13 @@ func compileCmd(args []string) error {
 		return err
 	}
 	if fs.NArg() != 1 {
-		return fmt.Errorf("usage: ufl compile input.ufl --target json --out output.json")
+		return fmt.Errorf("usage: ufl compile input.ufl --target json --profile workflow --out output.json")
 	}
 	source, err := os.ReadFile(fs.Arg(0))
 	if err != nil {
 		return err
 	}
-	doc, err := compiler.Compile(string(source))
+	doc, err := compiler.CompileWithProfile(string(source), profile)
 	if err != nil {
 		return err
 	}
@@ -125,6 +126,8 @@ func compileCmd(args []string) error {
 		err = mmdbackend.Encode(&output, doc)
 	case "dot":
 		err = dotbackend.Encode(&output, doc)
+	case "timeline":
+		err = timelinebackend.Encode(&output, doc)
 	default:
 		return fmt.Errorf("unsupported target %q", target)
 	}
@@ -229,15 +232,16 @@ func extractProfileOption(args []string) (string, []string, error) {
 	return profile, normalized, nil
 }
 
-func extractCompileOptions(args []string) (string, string, []string, error) {
+func extractCompileOptions(args []string) (string, string, string, []string, error) {
 	target := "json"
 	outPath := ""
+	profile := ""
 	normalized := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if arg == "--target" {
 			if i+1 >= len(args) {
-				return "", "", nil, fmt.Errorf("--target requires a value")
+				return "", "", "", nil, fmt.Errorf("--target requires a value")
 			}
 			target = args[i+1]
 			i++
@@ -249,7 +253,7 @@ func extractCompileOptions(args []string) (string, string, []string, error) {
 		}
 		if arg == "--out" || arg == "-o" {
 			if i+1 >= len(args) {
-				return "", "", nil, fmt.Errorf("%s requires a value", arg)
+				return "", "", "", nil, fmt.Errorf("%s requires a value", arg)
 			}
 			outPath = args[i+1]
 			i++
@@ -259,9 +263,25 @@ func extractCompileOptions(args []string) (string, string, []string, error) {
 			outPath = arg[len("--out="):]
 			continue
 		}
+		if arg == "--profile" {
+			if i+1 >= len(args) {
+				return "", "", "", nil, fmt.Errorf("--profile requires a value")
+			}
+			profile = args[i+1]
+			i++
+			continue
+		}
+		if len(arg) > len("--profile=") && arg[:len("--profile=")] == "--profile=" {
+			profile = arg[len("--profile="):]
+			continue
+		}
 		normalized = append(normalized, arg)
 	}
-	return target, outPath, normalized, nil
+	profile, err := compiler.NormalizeProfile(profile)
+	if err != nil {
+		return "", "", "", nil, err
+	}
+	return target, outPath, profile, normalized, nil
 }
 
 func extractFmtOptions(args []string) (bool, []string, error) {
