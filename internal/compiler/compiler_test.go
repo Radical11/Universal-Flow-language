@@ -31,3 +31,21 @@ func TestCompileWarnsForUndeclaredRelationTarget(t *testing.T) {
 		t.Fatalf("expected one diagnostic, got %#v", doc.Diagnostics)
 	}
 }
+
+func TestCompilePreservesTypedMetadataInIR(t *testing.T) {
+	doc, err := Compile(`entity task [enabled=true, retries=3, tags=["ops", core]]`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	meta := doc.Nodes[0].Metadata
+	if meta["enabled"] != true {
+		t.Fatalf("expected bool metadata, got %#v", meta["enabled"])
+	}
+	if meta["retries"] != float64(3) {
+		t.Fatalf("expected numeric metadata, got %#v", meta["retries"])
+	}
+	tags, ok := meta["tags"].([]any)
+	if !ok || len(tags) != 2 {
+		t.Fatalf("expected array metadata, got %#v", meta["tags"])
+	}
+}

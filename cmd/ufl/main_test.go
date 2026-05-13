@@ -38,7 +38,7 @@ func TestFmtWrite(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(content) != "# \n\nentity a label \"A\" [a=first, z=last]\n" && string(content) != "entity a label \"A\" [a=first, z=last]\n" {
+	if string(content) != "# \n\nentity a label \"A\" [a=\"first\", z=\"last\"]\n" && string(content) != "entity a label \"A\" [a=\"first\", z=\"last\"]\n" {
 		t.Fatalf("unexpected formatted content:\n%s", content)
 	}
 }

@@ -47,7 +47,9 @@ transition    = "on" value "->" identifier
 
 metadata      = "[" metadata_pair { "," metadata_pair } "]" ;
 metadata_pair = identifier "=" value ;
-value         = identifier | number | string ;
+value         = identifier | number | string | boolean | array ;
+boolean       = "true" | "false" ;
+array         = "[" [ value { "," value } ] "]" ;
 ```
 
 ## Identifiers
@@ -91,4 +93,3 @@ entity user as actor
 ## Stability
 
 This grammar describes `ufl.ir.v0`. Future syntax should preserve this core unless a breaking IR version is introduced.
-

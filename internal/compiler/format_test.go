@@ -19,10 +19,25 @@ rel a -> b
 		t.Fatal(err)
 	}
 	got := out.String()
-	if !strings.Contains(got, `entity b label "Bee" [a=first, z=last]`) {
+	if !strings.Contains(got, `entity b label "Bee" [a="first", z="last"]`) {
 		t.Fatalf("metadata was not sorted or formatted:\n%s", got)
 	}
 	if !strings.Contains(got, "rel a -> b") {
 		t.Fatalf("relation missing:\n%s", got)
+	}
+}
+
+func TestFormatTypedMetadataValues(t *testing.T) {
+	doc, err := Parse(`entity task [enabled=true, retries=3, tags=["alpha", beta, 2]]`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out strings.Builder
+	if err := Format(&out, doc); err != nil {
+		t.Fatal(err)
+	}
+	got := out.String()
+	if !strings.Contains(got, `entity task [enabled=true, retries=3, tags=["alpha", "beta", 2]]`) {
+		t.Fatalf("typed metadata was not formatted as expected:\n%s", got)
 	}
 }

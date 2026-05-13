@@ -43,6 +43,7 @@ go run ./cmd/ufl parse journey.ufl
 ## Core Ideas
 
 - **Small syntax**: UFL uses readable declarations, Markdown-style headings, blocks, and metadata.
+- **Typed metadata**: semantic attributes can carry strings, numbers, booleans, and arrays without changing the core language.
 - **Semantic IR first**: the compiler output is a universal model of nodes, edges, flows, states, transitions, and metadata.
 - **Domain agnostic**: the language core describes structure and meaning, not one industry.
 - **Backend oriented**: the same IR can feed graph visualizers, simulation runtimes, diagrams, APIs, engines, or future plugins.

@@ -152,7 +152,7 @@ func writeMetadata(w io.Writer, meta ast.Metadata) error {
 	sort.Strings(keys)
 	pairs := make([]string, 0, len(keys))
 	for _, key := range keys {
-		pairs = append(pairs, fmt.Sprintf("%s=%s", key, quoteIfNeeded(meta[key])))
+		pairs = append(pairs, fmt.Sprintf("%s=%s", key, meta[key].Format()))
 	}
 	_, err := fmt.Fprintf(w, " [%s]", strings.Join(pairs, ", "))
 	return err

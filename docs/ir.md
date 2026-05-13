@@ -32,7 +32,13 @@ Nodes represent entities.
   "type": "actor",
   "label": "Reviewer",
   "metadata": {
-    "team": "ops"
+    "team": "ops",
+    "enabled": true,
+    "retries": 3,
+    "lanes": [
+      "fast",
+      "safe"
+    ]
   }
 }
 ```
@@ -96,4 +102,3 @@ Examples:
 - State transitions to an undeclared state
 
 Parser errors still fail compilation.
-

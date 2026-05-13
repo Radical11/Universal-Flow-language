@@ -1,5 +1,11 @@
 package ast
 
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
+
 type Document struct {
 	Title     string
 	Sections  []Section
@@ -14,7 +20,92 @@ type Section struct {
 	Title string
 }
 
-type Metadata map[string]string
+type ValueKind string
+
+const (
+	ValueString ValueKind = "string"
+	ValueNumber ValueKind = "number"
+	ValueBool   ValueKind = "bool"
+	ValueArray  ValueKind = "array"
+)
+
+type Value struct {
+	Kind   ValueKind
+	Raw    string
+	String string
+	Number float64
+	Bool   bool
+	Array  []Value
+}
+
+func NewStringValue(value string) Value {
+	return Value{Kind: ValueString, String: value}
+}
+
+func NewNumberValue(raw string, value float64) Value {
+	return Value{Kind: ValueNumber, Raw: raw, Number: value}
+}
+
+func NewBoolValue(value bool) Value {
+	raw := "false"
+	if value {
+		raw = "true"
+	}
+	return Value{Kind: ValueBool, Raw: raw, Bool: value}
+}
+
+func NewArrayValue(values []Value) Value {
+	return Value{Kind: ValueArray, Array: values}
+}
+
+func (v Value) Any() any {
+	switch v.Kind {
+	case ValueString:
+		return v.String
+	case ValueNumber:
+		return v.Number
+	case ValueBool:
+		return v.Bool
+	case ValueArray:
+		items := make([]any, 0, len(v.Array))
+		for _, item := range v.Array {
+			items = append(items, item.Any())
+		}
+		return items
+	default:
+		return nil
+	}
+}
+
+func (v Value) Format() string {
+	switch v.Kind {
+	case ValueString:
+		return fmt.Sprintf("%q", v.String)
+	case ValueNumber:
+		if v.Raw != "" {
+			return v.Raw
+		}
+		return strconv.FormatFloat(v.Number, 'f', -1, 64)
+	case ValueBool:
+		if v.Raw != "" {
+			return v.Raw
+		}
+		if v.Bool {
+			return "true"
+		}
+		return "false"
+	case ValueArray:
+		parts := make([]string, 0, len(v.Array))
+		for _, item := range v.Array {
+			parts = append(parts, item.Format())
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
+	default:
+		return `""`
+	}
+}
+
+type Metadata map[string]Value
 
 type Entity struct {
 	ID       string

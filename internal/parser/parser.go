@@ -89,7 +89,7 @@ func (p *Parser) parseEntity() (ast.Entity, error) {
 			continue
 		}
 		if p.matchKeyword("label") {
-			label, err := p.consumeValue("expected label value")
+			label, err := p.consumeTextValue("expected label value")
 			if err != nil {
 				return ast.Entity{}, err
 			}
@@ -152,7 +152,7 @@ func (p *Parser) parseFlow() (ast.Flow, error) {
 	flow := ast.Flow{ID: id.Value, Metadata: ast.Metadata{}}
 	for !p.atLineEnd() {
 		if p.matchKeyword("label") {
-			label, err := p.consumeValue("expected flow label")
+			label, err := p.consumeTextValue("expected flow label")
 			if err != nil {
 				return ast.Flow{}, err
 			}
@@ -211,7 +211,7 @@ func (p *Parser) parseStep() (ast.Step, error) {
 			continue
 		}
 		if p.matchKeyword("label") {
-			label, err := p.consumeValue("expected step label")
+			label, err := p.consumeTextValue("expected step label")
 			if err != nil {
 				return ast.Step{}, err
 			}
@@ -240,7 +240,7 @@ func (p *Parser) parseState() (ast.State, error) {
 	state := ast.State{ID: id.Value, Metadata: ast.Metadata{}}
 	for !p.atLineEnd() {
 		if p.matchKeyword("label") {
-			label, err := p.consumeValue("expected state label")
+			label, err := p.consumeTextValue("expected state label")
 			if err != nil {
 				return ast.State{}, err
 			}
@@ -284,7 +284,7 @@ func (p *Parser) parseState() (ast.State, error) {
 }
 
 func (p *Parser) parseTransition() (ast.Transition, error) {
-	event, err := p.consumeValue("expected transition event")
+	event, err := p.consumeTextValue("expected transition event")
 	if err != nil {
 		return ast.Transition{}, err
 	}
@@ -298,7 +298,7 @@ func (p *Parser) parseTransition() (ast.Transition, error) {
 	transition := ast.Transition{On: event, To: to.Value, Metadata: ast.Metadata{}}
 	for !p.atLineEnd() {
 		if p.matchKeyword("if") {
-			condition, err := p.consumeValue("expected transition condition")
+			condition, err := p.consumeTextValue("expected transition condition")
 			if err != nil {
 				return ast.Transition{}, err
 			}
@@ -332,7 +332,7 @@ func (p *Parser) parseMetadata() (ast.Metadata, error) {
 		if _, err := p.consume(lexer.TokenEqual, "expected = after metadata key"); err != nil {
 			return nil, err
 		}
-		value, err := p.consumeValue("expected metadata value")
+		value, err := p.parseValue()
 		if err != nil {
 			return nil, err
 		}
@@ -347,7 +347,50 @@ func (p *Parser) parseMetadata() (ast.Metadata, error) {
 	return meta, nil
 }
 
-func (p *Parser) consumeValue(message string) (string, error) {
+func (p *Parser) parseValue() (ast.Value, error) {
+	if p.match(lexer.TokenString) {
+		return ast.NewStringValue(p.previous().Value), nil
+	}
+	if p.match(lexer.TokenNumber) {
+		raw := p.previous().Value
+		number, ok := ParseNumber(raw)
+		if !ok {
+			return ast.Value{}, p.errorAtCurrent("invalid numeric metadata value")
+		}
+		return ast.NewNumberValue(raw, number), nil
+	}
+	if p.match(lexer.TokenIdentifier) {
+		value := p.previous().Value
+		switch value {
+		case "true":
+			return ast.NewBoolValue(true), nil
+		case "false":
+			return ast.NewBoolValue(false), nil
+		default:
+			return ast.NewStringValue(value), nil
+		}
+	}
+	if p.match(lexer.TokenLBracket) {
+		values := []ast.Value{}
+		for !p.check(lexer.TokenRBracket) {
+			value, err := p.parseValue()
+			if err != nil {
+				return ast.Value{}, err
+			}
+			values = append(values, value)
+			if !p.match(lexer.TokenComma) {
+				break
+			}
+		}
+		if _, err := p.consume(lexer.TokenRBracket, "expected ] after array value"); err != nil {
+			return ast.Value{}, err
+		}
+		return ast.NewArrayValue(values), nil
+	}
+	return ast.Value{}, p.errorAtCurrent("expected metadata value")
+}
+
+func (p *Parser) consumeTextValue(message string) (string, error) {
 	if p.match(lexer.TokenString, lexer.TokenIdentifier, lexer.TokenNumber) {
 		return p.previous().Value, nil
 	}

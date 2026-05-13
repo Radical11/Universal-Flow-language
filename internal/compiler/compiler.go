@@ -26,7 +26,7 @@ func BuildIR(doc *ast.Document) (*ir.Document, error) {
 	result := &ir.Document{
 		Version:  IRVersion,
 		Title:    doc.Title,
-		Metadata: map[string]string{},
+		Metadata: map[string]any{},
 		Nodes:    []ir.Node{},
 		Edges:    []ir.Edge{},
 		Flows:    []ir.Flow{},
@@ -87,13 +87,13 @@ func BuildIR(doc *ast.Document) (*ir.Document, error) {
 	return result, nil
 }
 
-func copyMap(in map[string]string) map[string]string {
+func copyMap(in ast.Metadata) map[string]any {
 	if len(in) == 0 {
 		return nil
 	}
-	out := make(map[string]string, len(in))
+	out := make(map[string]any, len(in))
 	for k, v := range in {
-		out[k] = v
+		out[k] = v.Any()
 	}
 	return out
 }

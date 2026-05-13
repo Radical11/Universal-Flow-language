@@ -87,6 +87,8 @@ Rewrite a file in place:
 go run ./cmd/ufl fmt examples/workflow.ufl --write
 ```
 
+The formatter emits a canonical representation. Metadata strings are always written with quotes, even if the source used a bare identifier.
+
 ## Common Development Commands
 
 Run tests:

@@ -93,10 +93,18 @@ The condition is optional.
 Metadata attaches simple key-value meaning to declarations.
 
 ```ufl
-entity mountain as place [difficulty=high, region=north]
+entity mountain as place [difficulty="high", region=north, visible=true, checkpoints=[1, 2, 3]]
 ```
 
-Metadata values can be identifiers, numbers, or strings.
+Metadata values can be:
+
+- Strings
+- Numbers
+- Booleans
+- Arrays of strings, numbers, and booleans
+
+Bare identifiers inside metadata are treated as string values.
+The formatter normalizes those string values into quoted form, so `region=north` becomes `region="north"` when reformatted.
 
 ## Comments
 
@@ -110,4 +118,3 @@ entity user as actor
 ## Design Boundary
 
 The base language should stay generic. Do not add keywords like `camera`, `quest`, `screen`, or `database_table` to the core syntax. Those concepts belong in libraries, validators, backends, or conventions built on top of the IR.
-
